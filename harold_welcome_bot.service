@@ -1,0 +1,14 @@
+# harold_welcome_bot.service
+[Unit]
+Description=Harold Welcome Bot
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/harold_welcome_bot
+Restart=always
+Environment="TOKEN=bot_token"
+ExecStart=/usr/bin/ruby harold_welcome_bot.rb
+
+[Install]
+WantedBy=multi-user.target
