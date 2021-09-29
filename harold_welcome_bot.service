@@ -1,4 +1,6 @@
-# harold_welcome_bot.service
+# sudo cp harold_welcome_bot.service /lib/systemd/system -v
+# sudo systemctl enable harold_welcome_bot.service
+# sudo systemctl start harold_welcome_bot.service
 [Unit]
 Description=Harold Welcome Bot
 
