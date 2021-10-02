@@ -30,13 +30,19 @@ Telegram::Bot::Client.run(ENV['TOKEN']) do |bot|
       end
 
       unless message.new_chat_members.empty?
-        message.new_chat_members.each do |user|
-          bot.api.send_sticker(
-            chat_id: message.chat.id,
-            reply_to_message_id: message.message_id,
-            sticker: 'CAACAgIAAxkBAAMZYVSYYQbI48MxD2QaA94x2ROqgKsAAkIAA2iaXQye3L-VT87R6CEE'
-          )
-        end
+        bot.api.send_sticker(
+          chat_id: message.chat.id,
+          reply_to_message_id: message.message_id,
+          sticker: 'CAACAgIAAxkBAAMZYVSYYQbI48MxD2QaA94x2ROqgKsAAkIAA2iaXQye3L-VT87R6CEE'
+        )
+      end
+
+      if message.left_chat_member
+        bot.api.send_sticker(
+          chat_id: message.chat.id,
+          reply_to_message_id: message.message_id,
+          sticker: 'CAACAgIAAxkBAAEDAAEPYVgHUSxnl9CFCMkdNzRpv1Wqae4AAkQAA3lx3hZio5LFjSdVbiEE'
+        )
       end
 
     end
