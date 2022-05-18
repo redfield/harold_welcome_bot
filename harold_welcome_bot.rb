@@ -1,5 +1,7 @@
 require 'telegram/bot'
+require 'sinatra'
 
+TOKEN = ENV['TOKEN']
 STIKERS = [
   'CAACAgIAAx0CVbzQLgADFWFVUi5KR-bNL8qVa8a9jH7ejSX0AAIvAAN5cd4WBMuBddyJMbQhBA',
   'CAACAgIAAx0CVbzQLgADFmFVVgi2boNHRBxpfMVs0HSMwUhCAAIjAAN5cd4W2rS42UaRM5EhBA',
@@ -10,7 +12,6 @@ STIKERS = [
   'CAACAgIAAx0CVbzQLgADIWFVWaE6C4t9i6C6AtzNqMBRUwABeQACGAADeXHeFlkmTdPzTa_tIQQ',
   'CAACAgIAAx0CVbzQLgADI2FVWbwuQcKVdb7WW5QaacL7Nsc4AAIzAAN5cd4Wifg5Yb2ZBPAhBA'
 ]
-TOKEN = ENV['TOKEN']
 
 class WebhooksController < Telegram::Bot::UpdatesController
   def message(message)
@@ -34,8 +35,13 @@ bot = Telegram::Bot::Client.new(TOKEN)
 
 if ENV['PRODUCTION']
   # webhook mode
-  map "/#{TOKEN}" do
+
+  get "/harold_welcome_bot_webhook" do
     run Telegram::Bot::Middleware.new(bot, WebhooksController)
+  end
+
+  get '/ping' do
+    'pong'
   end
 else
   # poller-mode
