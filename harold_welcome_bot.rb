@@ -1,25 +1,6 @@
 require 'telegram/bot'
 
-module Telegram
-  module Bot
-    class Api
-      def call(endpoint, raw_params = {})
-        params = build_params(raw_params)
-        response = conn.post("/bot#{token}/#{endpoint}", params)
-        if response.status == 200
-          JSON.parse(response.body)
-        else
-          puts "[#{Time.now}] API error: #{response.status} #{response.body}"
-        end
-      end
-    end
-  end
-end
-
-$stdout.reopen("#{__dir__}/harold_welcome_bot.log", 'a')
-$stdout.sync = true
-
-reply_stikers = [
+STIKERS = [
   'CAACAgIAAx0CVbzQLgADFWFVUi5KR-bNL8qVa8a9jH7ejSX0AAIvAAN5cd4WBMuBddyJMbQhBA',
   'CAACAgIAAx0CVbzQLgADFmFVVgi2boNHRBxpfMVs0HSMwUhCAAIjAAN5cd4W2rS42UaRM5EhBA',
   'CAACAgIAAx0CVbzQLgADH2FVWYN_kK8LrtMKn5mJX3l2B20-AAIuAAN5cd4WSnS803pjo38hBA',
@@ -29,38 +10,37 @@ reply_stikers = [
   'CAACAgIAAx0CVbzQLgADIWFVWaE6C4t9i6C6AtzNqMBRUwABeQACGAADeXHeFlkmTdPzTa_tIQQ',
   'CAACAgIAAx0CVbzQLgADI2FVWbwuQcKVdb7WW5QaacL7Nsc4AAIzAAN5cd4Wifg5Yb2ZBPAhBA'
 ]
+TOKEN = ENV['TOKEN']
 
-puts "[#{Time.now}] Bot started"
-Telegram::Bot::Client.run(ENV['TOKEN']) do |bot|
-  bot.listen do |message|
-    case message
-    when Telegram::Bot::Types::Message
+class WebhooksController < Telegram::Bot::UpdatesController
+  def message(message)
+    reply = message['reply_to_message']
 
-      reply = message.reply_to_message
-      if (message.text || '')['@HaroldWelcomeBot'] || (reply != nil && reply.from.username === 'HaroldWelcomeBot')
-        bot.api.send_sticker(
-          chat_id: message.chat.id,
-          reply_to_message_id: message.message_id,
-          sticker: reply_stikers.sample
-        )
-      end
+    if (message['text'] || '')['@HaroldWelcomeBot'] || (reply != nil && reply.dig('from', 'username') === 'HaroldWelcomeBot')
+      reply_with :sticker, sticker: STIKERS.sample
+    end
 
-      unless message.new_chat_members.empty?
-        bot.api.send_sticker(
-          chat_id: message.chat.id,
-          reply_to_message_id: message.message_id,
-          sticker: 'CAACAgIAAxkBAAMZYVSYYQbI48MxD2QaA94x2ROqgKsAAkIAA2iaXQye3L-VT87R6CEE'
-        )
-      end
+    if message['new_chat_members'] && !message['new_chat_members'].empty?
+      reply_with :sticker, sticker: 'CAACAgIAAxkBAAMZYVSYYQbI48MxD2QaA94x2ROqgKsAAkIAA2iaXQye3L-VT87R6CEE'
+    end
 
-      if message.left_chat_member
-        bot.api.send_sticker(
-          chat_id: message.chat.id,
-          reply_to_message_id: message.message_id,
-          sticker: 'CAACAgIAAxkBAAEDAAEPYVgHUSxnl9CFCMkdNzRpv1Wqae4AAkQAA3lx3hZio5LFjSdVbiEE'
-        )
-      end
-
+    if message['left_chat_member']
+      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEDAAEPYVgHUSxnl9CFCMkdNzRpv1Wqae4AAkQAA3lx3hZio5LFjSdVbiEE'
     end
   end
+end
+
+bot = Telegram::Bot::Client.new(TOKEN)
+
+if ENV['PRODUCTION']
+  # webhook mode
+  map "/#{TOKEN}" do
+    run Telegram::Bot::Middleware.new(bot, WebhooksController)
+  end
+else
+  # poller-mode
+  require 'logger'
+  logger = Logger.new(STDOUT)
+  poller = Telegram::Bot::UpdatesPoller.new(bot, WebhooksController, logger: logger)
+  poller.start
 end
