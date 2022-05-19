@@ -10,7 +10,7 @@ Group=ubuntu
 WorkingDirectory=/home/ubuntu/harold_welcome_bot
 Restart=always
 Environment="TOKEN=bot_token"
-ExecStart=/home/ubuntu/.rbenv/bin/rbenv exec bundle exec ruby harold_welcome_bot.rb
+ExecStart=/home/ubuntu/.rbenv/bin/rbenv exec bundle exec rackup >>production.log 2>&1
 
 [Install]
 WantedBy=multi-user.target
