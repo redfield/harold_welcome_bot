@@ -36,7 +36,7 @@ bot = Telegram::Bot::Client.new(TOKEN)
 if ENV['PRODUCTION']
   # webhook mode
 
-  get "/harold_welcome_bot_webhook" do
+  post "/harold_welcome_bot_webhook" do
     run Telegram::Bot::Middleware.new(bot, WebhooksController)
   end
 
