@@ -26,6 +26,11 @@ class WebhooksController < Telegram::Bot::UpdatesController
     if message['left_chat_member']
       reply_with :sticker, sticker: 'CAACAgIAAxkBAAEDAAEPYVgHUSxnl9CFCMkdNzRpv1Wqae4AAkQAA3lx3hZio5LFjSdVbiEE'
     end
+
+    if message['text'][' пора ']
+      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEUW_1ijls4TbAW4onhIi1kCnANNadP4QACHAADTntVAg7ESRHuvrryJAQ'
+      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEUW_9ijls9bgG1dHBOFHxStKnbHzWNaAACHQADTntVArrbH0poFOFxJAQ'
+    end
   end
 end
 
