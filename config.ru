@@ -14,9 +14,15 @@ STIKERS = [
 class WebhooksController < Telegram::Bot::UpdatesController
   def message(message)
     reply = message['reply_to_message']
+    text = message['text']
 
-    if (message['text'] || '')['@HaroldWelcomeBot'] || (reply != nil && reply.dig('from', 'username') === 'HaroldWelcomeBot')
+    if (text && text['@HaroldWelcomeBot']) || (reply && reply.dig('from', 'username') === 'HaroldWelcomeBot')
       reply_with :sticker, sticker: STIKERS.sample
+    end
+
+    if text && text[/\b(пора)\b/i] && !reply
+      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEUW_1ijls4TbAW4onhIi1kCnANNadP4QACHAADTntVAg7ESRHuvrryJAQ'
+      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEUW_9ijls9bgG1dHBOFHxStKnbHzWNaAACHQADTntVArrbH0poFOFxJAQ'
     end
 
     if message['new_chat_members'] && !message['new_chat_members'].empty?
@@ -25,11 +31,6 @@ class WebhooksController < Telegram::Bot::UpdatesController
 
     if message['left_chat_member']
       reply_with :sticker, sticker: 'CAACAgIAAxkBAAEDAAEPYVgHUSxnl9CFCMkdNzRpv1Wqae4AAkQAA3lx3hZio5LFjSdVbiEE'
-    end
-
-    if message['text'] && message['text'][/\b(пора)\b/]
-      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEUW_1ijls4TbAW4onhIi1kCnANNadP4QACHAADTntVAg7ESRHuvrryJAQ'
-      reply_with :sticker, sticker: 'CAACAgIAAxkBAAEUW_9ijls9bgG1dHBOFHxStKnbHzWNaAACHQADTntVArrbH0poFOFxJAQ'
     end
   end
 end
